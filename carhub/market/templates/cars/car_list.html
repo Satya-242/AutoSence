@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Cars for Sale</h3>
+
+<table class="table table-striped align-middle mt-3">
+  <thead>
+    <tr>
+      <th>Photo</th>
+      <th>Car</th>
+      <th>Year</th>
+      <th>Fuel</th>
+      <th>Transmission</th>
+      <th>Expected Price (₹)</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for car in cars %}
+      <tr>
+        <td style="width:120px">
+          {% if car.image %}
+            <img src="{{ car.image.url }}" class="img-fluid rounded" style="max-height:80px">
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td><a href="{% url 'car_detail' car.pk %}">{{ car.name }}</a></td>
+        <td>{{ car.year }}</td>
+        <td>{{ car.fuel }}</td>
+        <td>{{ car.transmission }}</td>
+        <td>{{ car.expected_price|floatformat:0 }}</td>
+        <td>
+          <span class="badge {% if car.status == 'APPROVED' %}bg-success{% elif car.status == 'PENDING' %}bg-secondary{% else %}bg-danger{% endif %}">
+            {{ car.status }}
+          </span>
+        </td>
+        <td>
+          {% if car.status == 'APPROVED' and user.is_authenticated and user != car.seller %}
+            <a class="btn btn-sm btn-primary" href="{% url 'purchase' car.pk %}">Buy</a>
+          {% endif %}
+          {% if user.is_superuser %}
+            <a class="btn btn-sm btn-outline-success" href="{% url 'approve_car' car.pk %}">Approve</a>
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'reject_car' car.pk %}">Reject</a>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'edit_car' car.pk %}">Edit</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'delete_car' car.pk %}">Delete</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8" class="text-center">No cars available.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

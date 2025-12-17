@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {%load static%}
+  <meta charset="utf-8">
+  <title>AutoSence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script defer src="{% static 'js/app.jsx' %}"></script>
+</head>
+<body class="global-bg">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="navg1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#60A5FA"/>
+            <stop offset="1" stop-color="#7C3AED"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="26" stroke="url(#navg1)" stroke-width="4"/>
+        <path d="M16 36c6-10 26-10 32 0" stroke="url(#navg1)" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <span>AutoSence</span>
+    </a>
+    
+    <div>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'car_list' %}">Inventory</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'upload_car' %}">Sell a Car</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'predict' %}">Predict Price</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'customer_dashboard' %}">Dashboard</a></li>
+          {% if user.is_superuser %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+    </div>
+    <div class="d-flex">
+      {% if user.is_authenticated %}
+        <a class="btn btn-outline-light me-2" href="{% url 'my_listings' %}">My Listings</a>
+        {% if user.is_superuser %}
+          <span class="badge bg-warning text-dark me-2">Admin</span>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+      {% else %}
+        <a class="btn btn-outline-light me-2" href="{% url 'login' %}">Login</a>
+        <a class="btn btn-success" href="{% url 'signup' %}">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Add this where you want the notification bell in your navigation -->
+{% if user.is_authenticated %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-bell"></i>
+        <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+            0
+        </span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" id="notification-dropdown">
+        <li><h6 class="dropdown-header">Notifications</h6></li>
+        <li><hr class="dropdown-divider"></li>
+        <div id="notification-list">
+            <li class="px-3 py-2 text-muted">Loading...</li>
+        </div>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-center" href="{% url 'all_notifications' %}">View all notifications</a></li>
+    </ul>
+</li>
+{% endif %}
+</nav>
+
+<div class="container mt-4">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+  <div id="spa-root" class="mt-4"></div>
+</div>
+<script>
+// Update notification count and list
+function updateNotifications() {
+    fetch('{% url "unread_notifications" %}')
+        .then(response => response.json())
+        .then(data => {
+            const notificationList = document.getElementById('notification-list');
+            const notificationCount = document.getElementById('notification-count');
+            
+            // Update count
+            if (data.notifications.length > 0) {
+                notificationCount.textContent = data.notifications.length;
+                notificationCount.style.display = 'block';
+            } else {
+                notificationCount.style.display = 'none';
+            }
+            
+            // Update list
+            if (data.notifications.length === 0) {
+                notificationList.innerHTML = '<li class="px-3 py-2 text-muted">No new notifications</li>';
+                return;
+            }
+            
+            notificationList.innerHTML = data.notifications.map(notif => `
+                <li>
+                    <a class="dropdown-item" href="/cars/${notif.car_id}/" onclick="markAsRead(${notif.id}, event)">
+                        <div class="d-flex w-100 justify-content-between">
+                            <span>${notif.message}</span>
+                            <small class="text-muted">${notif.created_at}</small>
+                        </div>
+                        <small class="text-muted">${notif.type.replace('_', ' ')}</small>
+                    </a>
+                </li>
+            `).join('');
+        });
+}
+
+// Mark notification as read
+function markAsRead(notificationId, event) {
+    // Don't prevent default if it's a dropdown item click
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    fetch(`/notifications/${notificationId}/mark-read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFTTOKEN': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    }).then(() => {
+        // Update UI
+        updateNotifications();
+    });
+}
+
+// Check for new notifications when dropdown is shown
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('notification-dropdown');
+    if (dropdown) {
+        dropdown.addEventListener('shown.bs.dropdown', function () {
+            updateNotifications();
+        });
+    }
+    
+    // Also update periodically (every 30 seconds)
+    setInterval(updateNotifications, 30000);
+});
+</script>
+</body>
+</html>

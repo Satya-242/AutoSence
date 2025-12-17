@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Car Price Predictor | Accurate Market Valuation Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-card {
+            grid-column: 1;
+        }
+
+        .info-card {
+            grid-column: 2;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: var(--background);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .pred {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-top: 2rem;
+            animation: slideIn 0.6s ease;
+        }
+
+        .pred strong {
+            font-size: 2.25rem;
+            font-weight: 700;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        /* Flash Screen Overlay */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .flash-overlay.active {
+            display: flex;
+            opacity: 1;
+            animation: flashAppear 0.8s ease-out;
+        }
+
+        .flash-content {
+            text-align: center;
+            color: white;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            max-width: 90%;
+            width: 500px;
+        }
+
+        .close-flash {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .close-flash:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .flash-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .flash-price {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 1.5rem 0;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pricePulse 2s ease-in-out infinite;
+        }
+
+        .flash-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-content p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        @keyframes flashAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pricePulse {
+            0%, 100% {
+                transform: scale(1);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                transform: scale(1.05);
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 3rem;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-card, .info-card {
+                grid-column: 1;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2.25rem;
+            }
+            
+            .card {
+                padding: 2rem;
+            }
+            
+            .flash-price {
+                font-size: 3rem;
+            }
+            
+            .flash-content {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .close-flash {
+                top: 1rem;
+                right: 1rem;
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            color: var(--text-secondary);
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem;
+            background: var(--text-primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Flash Screen Overlay -->
+    <div class="flash-overlay" id="flashOverlay">
+        <div class="flash-content">
+            <button class="close-flash" id="closeFlash">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="flash-title">Estimated Market Value</div>
+            <div class="flash-price" id="flashPrice">₹ {{ prediction }}</div>
+            <div class="flash-subtitle">
+                Based on comprehensive analysis of your vehicle's specifications<br>
+                and current market trends
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-car"></i> Car Price Predictor</h1>
+            <p class="subtitle">Get accurate market valuation for your vehicle using our AI-powered prediction technology</p>
+        </div>
+
+        <div class="card-grid">
+            <div class="card form-card">
+                <div class="card-title">
+                    <i class="fas fa-calculator"></i>
+                    Price Estimation Form
+                </div>
+                
+                <form method="post" id="predictionForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.km_driven.label_tag }}
+                            {{ form.km_driven }}
+                        </div>
+                        
+                        <div class="form-row">
+    <div class="form-group">
+        <label for="fuel">Fuel</label>
+        <select name="fuel" id="fuel" class="form-input">
+            <option value="0">Diesel</option>
+            <option value="1">Petrol</option>
+            <option value="2">LPG</option>
+            <option value="3">CNG</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="seller_type">Seller Type</label>
+        <select name="seller_type" id="seller_type" class="form-input">
+            <option value="0">Individual</option>
+            <option value="1">Dealer</option>
+            <option value="2">Trustmark Dealer</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label for="transmission">Transmission</label>
+        <select name="transmission" id="transmission" class="form-input">
+            <option value="0">Manual</option>
+            <option value="1">Automatic</option>
+            <option value="2">Hybrid</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="owner">Owner</label>
+        <select name="owner" id="owner" class="form-input">
+            <option value="0">First Owner</option>
+            <option value="1">Second Owner</option>
+            <option value="2">Third Owner</option>
+            <option value="3">Fourth & Above Owner</option>
+            <option value="4">Test Drive Car</option>
+        </select>
+    </div>
+</div>
+
+                        
+                        <div class="form-group">
+                            {{ form.mileage.label_tag }}
+                            {{ form.mileage }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.engine.label_tag }}
+                            {{ form.engine }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.max_power.label_tag }}
+                            {{ form.max_power }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.torque.label_tag }}
+                            {{ form.torque }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.seats.label_tag }}
+                            {{ form.seats }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.Age.label_tag }}
+                        {{ form.Age }}
+                    </div>
+
+                    <button type="submit" class="btn">
+                        <i class="fas fa-bolt"></i>
+                        Predict Price
+                    </button>
+                </form>
+
+                {% if prediction %}
+                <div class="pred">
+                    Estimated Price: ₹ <strong>{{ prediction }}</strong>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card info-card">
+                <div class="card-title">
+                    <i class="fas fa-star"></i>
+                    Why Choose Our Predictor?
+                </div>
+                
+                <p style="margin-bottom: 2rem; opacity: 0.95; line-height: 1.6;">
+                    Our advanced AI-powered system analyzes multiple factors to provide you with the most accurate car valuation in the market.
+                </p>
+
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>AI-Powered Accuracy</h4>
+                            <p>Machine learning algorithms trained on thousands of real transactions</p>
+                        </div>
+                    </li>
+                    
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Real-time Market Data</h4>
+                            <p>Constantly updated with current market trends and pricing</p>
+                        </div>
+                    </li>
+                    
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Comprehensive Analysis</h4>
+                            <p>Considers 11+ factors including mileage, age, and specifications</p>
+                        </div>
+                    </li>
+                    
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Trusted Results</h4>
+                            <p>95%+ accuracy rate verified by automotive experts</p>
+                        </div>
+                    </li>
+                    
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Instant Valuation</h4>
+                            <p>Get your car's worth in seconds, not days</p>
+                        </div>
+                    </li>
+                </ul>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px;">
+                    <h4 style="margin-bottom: 0.75rem; font-size: 1.1rem;">
+                        <i class="fas fa-lightbulb"></i> Pro Tip
+                    </h4>
+                    <p style="font-size: 0.95rem; line-height: 1.6; opacity: 0.9;">
+                        For the most accurate valuation, ensure all information is up-to-date. 
+                        Regular maintenance and service history can increase your car's value significantly.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Car Price Predictor | Built with advanced machine learning technology</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                <i class="fas fa-shield-alt"></i> Your data is secure and never shared with third parties
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Show flash overlay when prediction is available
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashOverlay = document.getElementById('flashOverlay');
+            const closeFlash = document.getElementById('closeFlash');
+            const prediction = '{{ prediction }}';
+            
+            // Show flash screen if prediction exists
+            if (prediction && prediction !== 'None') {
+                setTimeout(() => {
+                    flashOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }, 500);
+            }
+            
+            // Close flash overlay
+            closeFlash.addEventListener('click', function() {
+                flashOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    flashOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Close on overlay click (outside content)
+            flashOverlay.addEventListener('click', function(e) {
+                if (e.target === flashOverlay) {
+                    flashOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // Add input validation and styling
+        document.querySelectorAll('input, select').forEach(input => {
+            input.classList.add('form-input');
+            
+            input.addEventListener('focus', function() {
+                this.style.borderColor = 'var(--primary)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = 'var(--border)';
+            });
+        });
+
+        // Add smooth scrolling for better UX
+        document.querySelector('form').addEventListener('submit', function() {
+            setTimeout(() => {
+                const prediction = document.querySelector('.pred');
+                if (prediction) {
+                    prediction.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
+

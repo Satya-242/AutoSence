@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero-section p-4 p-md-5 rounded-4 text-white position-relative overflow-hidden">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <svg class="brand-logo" width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#60A5FA"/>
+              <stop offset="1" stop-color="#7C3AED"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" stroke="url(#g1)" stroke-width="4"/>
+          <path d="M16 36c6-10 26-10 32 0" stroke="url(#g1)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="24" cy="40" r="3" fill="#fff"/>
+          <circle cx="40" cy="40" r="3" fill="#fff"/>
+        </svg>
+        <h1 class="display-5 fw-bold mb-0">AutoSence</h1>
+      </div>
+      <p class="lead mb-4">Find your next car with confidence. Browse curated listings, predict fair prices, and sell your car with ease. AutoSence helps you make smarter decisions on the road.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'car_list' %}" class="btn btn-light btn-lg px-4">Browse Inventory</a>
+        <a href="{% url 'upload_car' %}" class="btn btn-outline-light btn-lg px-4">Sell a Car</a>
+        <a href="{% url 'predict' %}" class="btn btn-outline-light px-4">Price Predictor</a>
+      </div>
+    </div>
+    <div class="col-lg-5 d-none d-lg-block">
+      <div class="hero-visual glass-card p-4 rounded-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat">
+            <div class="h3 mb-0">{{ cars|length }}</div>
+            <small class="text-white-50">Featured cars</small>
+          </div>
+          <div class="vr opacity-25"></div>
+          <div class="stat">
+            <div class="h3 mb-0">Fast</div>
+            <small class="text-white-50">Accurate pricing</small>
+          </div>
+          <div class="vr opacity-25"></div>
+          <div class="stat">
+            <div class="h3 mb-0">Secure</div>
+            <small class="text-white-50">Trusted sellers</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="brand-section mt-5">
+  <div class="row g-4 align-items-stretch">
+    <div class="col-lg-7">
+      <div class="p-4 p-md-5 rounded-4 shadow-sm bg-white h-100">
+        <h2 class="h4 mb-3">Why choose AutoSence?</h2>
+        <ul class="list-unstyled mb-0 d-grid gap-3">
+          <li class="d-flex gap-3 align-items-start"><span class="feature-bullet">✓</span><div><strong>Transparent Pricing</strong><br><span class="text-muted">Built-in predictor gives you fair market estimates before you buy or sell.</span></div></li>
+          <li class="d-flex gap-3 align-items-start"><span class="feature-bullet">✓</span><div><strong>Curated Listings</strong><br><span class="text-muted">Only verified and approved listings shown to buyers to ensure quality.</span></div></li>
+          <li class="d-flex gap-3 align-items-start"><span class="feature-bullet">✓</span><div><strong>Simple Selling</strong><br><span class="text-muted">Post your car in minutes and manage approvals from your dashboard.</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="p-4 rounded-4 shadow-sm bg-white h-100">
+        <h2 class="h5 mb-3">Today at a glance</h2>
+        <div id="highlights-root"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Featured cars</h2>
+    <a href="{% url 'car_list' %}" class="link-primary">View all</a>
+  </div>
+
+  <div class="row g-4">
+    {% for car in cars %}
+      <div class="col-12 col-sm-6 col-lg-4">
+        <a href="{% url 'car_detail' car.pk %}" class="text-decoration-none text-reset d-block h-100">
+          <div class="card shadow-sm card-raise h-100">
+            {% if car.image %}
+              <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.name }} image" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h3 class="h5 card-title mb-1">{{ car.name }}</h3>
+                <span class="badge bg-success">₹{{ car.expected_price|floatformat:0 }}</span>
+              </div>
+              <p class="card-text text-muted mb-2">{{ car.year }} • {{ car.fuel }} • {{ car.transmission }}</p>
+              <div class="d-flex gap-2">
+                <span class="badge bg-light text-dark">{{ car.seats }} seats</span>
+                <span class="badge bg-light text-dark">{{ car.owner }}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info mb-0">No featured cars yet. Check back soon!</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Highlights widget will be powered by global SPA; fallback to server values if needed -->
+<script type="application/json" id="highlights-data">[{% for car in cars %}{"status":"{{ car.status }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+
+{% endblock %}
+
+

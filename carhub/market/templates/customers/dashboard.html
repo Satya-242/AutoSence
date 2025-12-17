@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Your Dashboard</h1>
+  <div>
+    <a href="{% url 'upload_car' %}" class="btn btn-primary">Sell a Car</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5">Your listings</h2>
+        <div class="table-responsive mt-3">
+          <table class="table align-middle">
+            <thead><tr><th>Car</th><th>Status</th><th>Price (₹)</th><th></th></tr></thead>
+            <tbody>
+              {% for car in my_cars %}
+                <tr>
+                  <td><a href="{% url 'car_detail' car.pk %}">{{ car.name }}</a></td>
+                  <td>
+                    <span class="badge {% if car.status == 'APPROVED' %}bg-success{% elif car.status == 'PENDING' %}bg-secondary{% else %}bg-danger{% endif %}">{{ car.status }}</span>
+                  </td>
+                  <td>{{ car.expected_price|floatformat:0 }}</td>
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'edit_car' car.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'delete_car' car.pk %}">Delete</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-muted">No listings yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5">Recommended actions</h2>
+        <ul class="mb-0 mt-3 text-muted">
+          <li>Use the Price Predictor to estimate a fair price.</li>
+          <li>Complete your car details to improve visibility.</li>
+          <li>Share your listing link to reach more buyers.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+

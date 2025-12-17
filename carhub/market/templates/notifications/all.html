@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Your Notifications</h4>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="markAllAsRead()">Mark all as read</button>
+                </div>
+                <div class="list-group list-group-flush" id="all-notifications">
+                    {% for notification in notifications %}
+                    <a href="{% url 'car_detail' pk=notification.car_id %}" 
+                       class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-light{% endif %}"
+                       data-notification-id="{{ notification.id }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ notification.message }}</h6>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                        <small class="text-muted">Status: {{ notification.get_notification_type_display }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item text-muted">No notifications yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAllAsRead() {
+    fetch("{% url 'mark_all_notifications_read' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFTTOKEN': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    }).then(() => {
+        // Update UI
+        document.querySelectorAll('#all-notifications .list-group-item-light').forEach(item => {
+            item.classList.remove('list-group-item-light');
+        });
+    });
+}
+
+// Mark individual notification as read when clicked
+document.querySelectorAll('[data-notification-id]').forEach(item => {
+    item.addEventListener('click', function() {
+        const notificationId = this.dataset.notificationId;
+        fetch(`/notifications/${notificationId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFTTOKEN': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

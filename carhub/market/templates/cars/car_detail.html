@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+<h1 style="text-align:center;">ADMIN DASHBOARD</h1>
+{% block content %}
+
+<div class="row">
+  <div class="col-md-6">
+    {% if car.image %}
+      <img src="{{ car.image.url }}" class="img-fluid rounded">
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <h3>{{ car.name }} ({{ car.year }})</h3>
+    <p><b>Fuel:</b> {{ car.fuel }} | <b>Transmission:</b> {{ car.transmission }}</p>
+    <p><b>Mileage:</b> {{ car.mileage }} kmpl | <b>Engine:</b> {{ car.engine }} CC</p>
+    <p><b>Power:</b> {{ car.max_power }} BHP | <b>Torque:</b> {{ car.torque }} Nm</p>
+    <p><b>Location:</b> {{ car.location }}</p>
+    <p class="fs-5"><b>Expected Price:</b> ₹ {{ car.expected_price|floatformat:0 }}</p>
+    {% if car.predicted_price %}
+      <p class="text-muted">Model estimate: ₹ {{ car.predicted_price|floatformat:0 }}</p>
+    {% endif %}
+
+    {% if car.status == 'APPROVED' and user.is_authenticated and user != car.seller %}
+      <a class="btn btn-primary me-2" href="{% url 'purchase' car.pk %}">Buy now</a>
+    {% endif %}
+
+    {% if user.is_superuser %}
+      <a class="btn btn-success" href="{% url 'approve_car' car.pk %}">Approve</a>
+      <a class="btn btn-warning" href="{% url 'reject_car' car.pk %}">Reject</a>
+      <a class="btn btn-primary" href="{% url 'edit_car' car.pk %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'delete_car' car.pk %}">Delete</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

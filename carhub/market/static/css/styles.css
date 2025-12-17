@@ -1,0 +1,35 @@
+/* Minimal tweaks */
+img { object-fit: cover; }
+
+/* Global background to match predict page */
+html, body { min-height: 100%; }
+/* Force the same gradient background across all pages */
+html, body, body.global-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background-attachment: fixed;
+}
+
+/* Hero */
+.hero-section {
+  background: radial-gradient(1200px 600px at 10% -10%, #4f46e5 0%, rgba(79,70,229,0.6) 35%, rgba(13,13,13,0.9) 70%),
+              linear-gradient(180deg, #0b0b0b 0%, #111827 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35) inset, 0 10px 24px rgba(0,0,0,0.25);
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+}
+
+/* Cards */
+.card-raise { transition: transform .2s ease, box-shadow .2s ease; }
+.card-raise:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+
+/* Utilities */
+.vr { width: 1px; min-height: 36px; background-color: currentColor; opacity: .15; }
+
+/* Brand */
+.brand-logo { filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+.brand-section .feature-bullet { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#eef2ff; color:#4f46e5; font-weight:700; }

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="alert alert-success">
+  <strong>Success!</strong> You purchased {{ car.name }}. We sent a confirmation to {{ purchase.email }}.
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Order Summary</h5>
+    <p class="mb-1"><b>Buyer:</b> {{ purchase.full_name }} ({{ purchase.email }})</p>
+    <p class="mb-1"><b>Phone:</b> {{ purchase.phone }}</p>
+    <p class="mb-1"><b>Address:</b> {{ purchase.address }}</p>
+    <p class="mb-0"><b>Total Paid:</b> ₹{{ car.expected_price|floatformat:0 }}</p>
+  </div>
+  <div class="card-footer text-end">
+    <a class="btn btn-primary" href="{% url 'car_list' %}">Back to Inventory</a>
+  </div>
+  </div>
+
+{% endblock %}
+
+
